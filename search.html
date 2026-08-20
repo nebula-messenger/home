@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="de">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Nebula – Entdecken</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" type="image/png" href="icon.png">
+</head>
+
+<body>
+    <header class="topbar"><button class="mobile-menu-toggle" id="mobile-menu-toggle" aria-label="Menü öffnen" aria-expanded="false"><span></span></button><a class="logo" href="index.html"><span class="logo-mark">N</span>Nebula</a>
+        <nav class="nav-links"> <a data-nav="index.html"
+                href="index.html">Chats</a><a data-nav="friends.html" href="friends.html">Freunde</a><a
+                data-nav="search.html" href="search.html">Entdecken</a><a data-nav="settings.html"
+                href="settings.html">Einstellungen</a></nav>
+        <div class="top-actions"><a class="avatar-mini" href="profile.html" data-me-initials></a><button id="logout"
+                class="icon-btn">↪</button></div>
+    </header>
+    <main class="page narrow">
+        <div class="page-head">
+            <div><span class="eyebrow">ENTDECKEN</span>
+                <h1>Nutzer finden</h1>
+                <p>Suche nach Benutzernamen und starte eine Freundschaft.</p>
+            </div>
+        </div>
+        <div class="search-box"><span>⌕</span><input id="q" placeholder="Benutzername suchen …" autocomplete="off">
+        </div>
+        <div id="results" class="stack"></div>
+    </main>
+    <script type="module" src="./search.js"></script>
+</body>
+
+</html>

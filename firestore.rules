@@ -1,0 +1,234 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function self(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    function userExists(uid) {
+      return exists(/databases/$(database)/documents/users/$(uid));
+    }
+
+    function connection(uid, otherUid) {
+      return get(/databases/$(database)/documents/connections/$(uid)/items/$(otherUid));
+    }
+
+    function acceptedFriends(uid, otherUid) {
+      return signedIn()
+        && uid != otherUid
+        && exists(/databases/$(database)/documents/connections/$(uid)/items/$(otherUid))
+        && connection(uid, otherUid).data.status == 'accepted'
+        && exists(/databases/$(database)/documents/connections/$(otherUid)/items/$(uid))
+        && connection(otherUid, uid).data.status == 'accepted';
+    }
+
+    function chatMember(chatId) {
+      return signedIn()
+        && exists(/databases/$(database)/documents/chats/$(chatId))
+        && request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.members;
+    }
+
+    // ---------------------------------------------------------
+    // Username index
+    // ---------------------------------------------------------
+    // It is no longer public. Login does NOT read this collection;
+    // the deterministic Firebase Auth identifier is used instead.
+    match /usernames/{username} {
+      allow read: if signedIn();
+
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly(['uid', 'username', 'createdAt'])
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.username is string;
+
+      allow update: if false;
+      allow delete: if signedIn() && resource.data.uid == request.auth.uid;
+    }
+
+    // ---------------------------------------------------------
+    // User profiles
+    // ---------------------------------------------------------
+    match /users/{uid} {
+      allow read: if signedIn();
+
+      allow create: if self(uid)
+        && request.resource.data.keys().hasOnly([
+          'username', 'usernameLower', 'bio', 'createdAt', 'lastSeen', 'online'
+        ])
+        && request.resource.data.username is string
+        && request.resource.data.usernameLower is string
+        && request.resource.data.bio is string
+        && request.resource.data.bio.size() <= 160;
+
+      allow update: if self(uid)
+        && request.resource.data.username == resource.data.username
+        && request.resource.data.usernameLower == resource.data.usernameLower
+        && request.resource.data.bio is string
+        && request.resource.data.bio.size() <= 160
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'bio', 'lastSeen', 'online'
+        ]);
+
+      allow delete: if self(uid);
+    }
+
+    // ---------------------------------------------------------
+    // Friend requests
+    // ---------------------------------------------------------
+    match /requests/{uid}/incoming/{fromUid} {
+      allow read: if self(uid);
+
+      allow create: if signedIn()
+        && fromUid == request.auth.uid
+        && uid != request.auth.uid
+        && userExists(uid)
+        && request.resource.data.keys().hasOnly(['fromUid', 'createdAt'])
+        && request.resource.data.fromUid == request.auth.uid
+        && !exists(/databases/$(database)/documents/connections/$(request.auth.uid)/items/$(uid))
+        && !exists(/databases/$(database)/documents/connections/$(uid)/items/$(request.auth.uid));
+
+      allow delete: if self(uid)
+        || (signedIn() && request.auth.uid == fromUid);
+
+      allow update: if false;
+    }
+
+    match /requests/{uid}/outgoing/{toUid} {
+      allow read: if self(uid);
+
+      allow create: if self(uid)
+        && toUid != request.auth.uid
+        && userExists(toUid)
+        && request.resource.data.keys().hasOnly(['toUid', 'createdAt'])
+        && request.resource.data.toUid == toUid
+        && !exists(/databases/$(database)/documents/connections/$(request.auth.uid)/items/$(toUid))
+        && !exists(/databases/$(database)/documents/connections/$(toUid)/items/$(request.auth.uid));
+
+      allow delete: if self(uid)
+        || (signedIn() && request.auth.uid == toUid);
+
+      allow update: if false;
+    }
+
+    // ---------------------------------------------------------
+    // Friend connections
+    // ---------------------------------------------------------
+    match /connections/{uid}/items/{otherUid} {
+      allow read: if self(uid);
+
+      // A user may block another user in their own connection list.
+      allow create: if self(uid)
+        && otherUid != uid
+        && request.resource.data.keys().hasOnly(['status', 'createdAt'])
+        && request.resource.data.status == 'blocked';
+
+      // The recipient of an existing incoming request may create the
+      // accepted mirror for both users. The request must exist before the
+      // batch is committed; this prevents forged friendships.
+      allow create: if signedIn()
+        && request.auth.uid == uid
+        && otherUid != uid
+        && request.resource.data.keys().hasOnly(['status', 'createdAt'])
+        && request.resource.data.status == 'accepted'
+        && exists(/databases/$(database)/documents/requests/$(uid)/incoming/$(otherUid))
+        && exists(/databases/$(database)/documents/requests/$(otherUid)/outgoing/$(uid));
+
+      // Same restrictions for the second mirror written by the recipient.
+      allow create: if signedIn()
+        && request.auth.uid == otherUid
+        && uid != otherUid
+        && request.resource.data.keys().hasOnly(['status', 'createdAt'])
+        && request.resource.data.status == 'accepted'
+        && exists(/databases/$(database)/documents/requests/$(otherUid)/incoming/$(uid))
+        && exists(/databases/$(database)/documents/requests/$(uid)/outgoing/$(otherUid));
+
+      // Only the owner can turn an existing connection into a block.
+      allow update: if self(uid)
+        && request.resource.data.keys().hasOnly(['status', 'createdAt'])
+        && request.resource.data.status == 'blocked';
+
+      // Either participant can remove their own mirror. The other mirror is
+      // removed by the same batch through the symmetric rule.
+      allow delete: if self(uid) || (signedIn() && request.auth.uid == otherUid);
+    }
+
+    // ---------------------------------------------------------
+    // Chats
+    // ---------------------------------------------------------
+    match /chats/{chatId} {
+      allow read: if chatMember(chatId);
+
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly([
+          'members', 'createdAt', 'lastMessage', 'lastMessageAt', 'lastSenderId'
+        ])
+        && request.resource.data.members is list
+        && request.resource.data.members.size() == 2
+        && request.resource.data.members[0] != request.resource.data.members[1]
+        && request.auth.uid in request.resource.data.members
+        && acceptedFriends(
+          request.resource.data.members[0],
+          request.resource.data.members[1]
+        );
+
+      allow update: if chatMember(chatId)
+        && request.resource.data.members == resource.data.members
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'lastMessage', 'lastMessageAt', 'lastSenderId'
+        ])
+        && request.resource.data.lastMessage is string
+        && request.resource.data.lastMessage.size() <= 4000
+        && request.resource.data.lastSenderId == request.auth.uid;
+
+      allow delete: if false;
+    }
+
+    // ---------------------------------------------------------
+    // Messages
+    // ---------------------------------------------------------
+    match /chats/{chatId}/messages/{messageId} {
+      allow read: if chatMember(chatId);
+
+      allow create: if chatMember(chatId)
+        && request.resource.data.keys().hasOnly([
+          'senderId', 'receiverId', 'text', 'createdAt', 'read'
+        ])
+        && request.resource.data.senderId == request.auth.uid
+        && request.resource.data.receiverId is string
+        && request.resource.data.receiverId in get(
+          /databases/$(database)/documents/chats/$(chatId)
+        ).data.members
+        && request.resource.data.receiverId != request.auth.uid
+        && request.resource.data.text is string
+        && request.resource.data.text.size() > 0
+        && request.resource.data.text.size() <= 4000
+        && request.resource.data.read == false;
+
+      // Sender may edit only the text and mark it as edited.
+      allow update: if chatMember(chatId)
+        && resource.data.senderId == request.auth.uid
+        && request.resource.data.senderId == resource.data.senderId
+        && request.resource.data.receiverId == resource.data.receiverId
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.read == resource.data.read
+        && request.resource.data.text is string
+        && request.resource.data.text.size() > 0
+        && request.resource.data.text.size() <= 4000
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['text', 'edited'])
+        && request.resource.data.edited == true;
+
+      // Recipient may only mark an incoming message as read.
+      allow update: if chatMember(chatId)
+        && resource.data.receiverId == request.auth.uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read'])
+        && request.resource.data.read == true;
+
+      allow delete: if chatMember(chatId)
+        && resource.data.senderId == request.auth.uid;
+    }
+  }
+}

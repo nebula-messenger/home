@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="de">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Nebula – Chat</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" type="image/png" href="icon.png">
+</head>
+
+<body class="chat-page">
+    <header class="topbar"><button class="mobile-menu-toggle" id="mobile-menu-toggle" aria-label="Menü öffnen" aria-expanded="false"><span></span></button><a class="logo" href="index.html"><span class="logo-mark">N</span>Nebula</a>
+        <div id="chat-user" class="chat-user-head"></div>
+        <div class="top-actions"><a class="avatar-mini" href="profile.html" data-me-initials></a><button id="logout" class="icon-btn">↪</button></div>
+    </header>
+    <main class="chat-shell">
+        <section class="chat-window">
+            <div id="messages" class="messages">
+                <div class="loading">Chat wird geladen …</div>
+            </div>
+            <div id="reply" class="reply-bar hidden"></div>
+            <form id="composer" class="composer"><button type="button" id="emoji" class="icon-btn">☺</button><input
+                    id="message" maxlength="4000" placeholder="Nachricht schreiben …" autocomplete="off"><button
+                    class="send-btn" title="Senden">➤</button></form>
+            <div class="composer-hint">Enter zum Senden · Shift+Enter für neue Zeile</div>
+        </section>
+        <aside class="chat-info">
+            <div class="info-card">
+                <div id="info-avatar" class="avatar large"></div>
+                <h2 id="info-name">–</h2>
+                <p id="info-bio">–</p><a id="info-profile" class="secondary wide" href="#">Profil ansehen</a>
+            </div>
+            <div class="info-card">
+                <h3>Chat</h3>
+                <div class="info-line"><span>Nachrichten</span><strong id="msg-count">0</strong></div>
+                <div class="info-line"><span>Status</span><strong id="status">–</strong></div>
+            </div>
+        </aside>
+    </main>
+    <script type="module" src="./chat.js"></script>
+</body>
+
+</html>

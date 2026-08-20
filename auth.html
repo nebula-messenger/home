@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="de">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Nebula – Anmeldung</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" type="image/png" href="icon.png">
+</head>
+
+<body class="auth-page">
+  <div class="auth-shell">
+    <div class="brand-block">
+      <div class="brand-mark">N</div>
+      <div>
+        <div class="brand-name">Nebula</div>
+        <div class="brand-sub">Private Messenger</div>
+      </div>
+    </div>
+    <div class="auth-card">
+      <div class="auth-tabs"><button class="auth-tab active" data-tab="login">Anmelden</button><button class="auth-tab"
+          data-tab="register">Registrieren</button></div>
+      <form id="login-form" class="auth-form">
+        <div><label>Benutzername</label><input id="login-username" required minlength="3" maxlength="24"
+            autocomplete="username"></div>
+        <div><label>Passwort</label><input id="login-password" required type="password" minlength="6"
+            autocomplete="current-password"></div><button class="primary wide">Anmelden</button>
+      </form>
+      <form id="register-form" class="auth-form hidden">
+        <div><label>Benutzername</label><input id="register-username" required minlength="3" maxlength="24"
+            autocomplete="username"><small>3–24 Zeichen, Buchstaben, Zahlen, Punkt, Bindestrich oder
+            Unterstrich.</small></div>
+        <div><label>Passwort</label><input id="register-password" required type="password" minlength="6"
+            autocomplete="new-password"></div>
+        <div><label>Passwort wiederholen</label><input id="register-password2" required type="password" minlength="6"
+            autocomplete="new-password"></div><button class="primary wide">Konto erstellen</button>
+      </form>
+      <div id="auth-error" class="error-box hidden"></div>
+    </div>
+    <div class="auth-footer">Schlicht. Schnell. Privat.</div>
+  </div>
+  <div id="toast-root"></div>
+  <script type="module" src="./auth.js"></script>
+</body>
+
+</html>

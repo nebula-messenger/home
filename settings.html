@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="de">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Nebula – Einstellungen</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" type="image/png" href="icon.png">
+</head>
+
+<body>
+    <header class="topbar"><button class="mobile-menu-toggle" id="mobile-menu-toggle" aria-label="Menü öffnen" aria-expanded="false"><span></span></button><a class="logo" href="index.html"><span class="logo-mark">N</span>Nebula</a>
+        <nav class="nav-links"> <a data-nav="index.html"
+                href="index.html">Chats</a><a data-nav="friends.html" href="friends.html">Freunde</a><a
+                data-nav="search.html" href="search.html">Entdecken</a><a data-nav="settings.html"
+                href="settings.html">Einstellungen</a></nav>
+        <div class="top-actions"><a class="avatar-mini" href="profile.html" data-me-initials></a><button id="logout"
+                class="icon-btn">↪</button></div>
+    </header>
+    <main class="page narrow">
+        <div class="page-head">
+            <div><span class="eyebrow">KONFIGURATION</span>
+                <h1>Einstellungen</h1>
+                <p>Steuere das Verhalten von Nebula auf diesem Gerät.</p>
+            </div>
+        </div>
+        <div class="settings-card">
+            <div class="setting-row">
+                <div><strong>Enter send</strong><span>Enter sendet direkt, Shift+Enter erstellt eine neue Zeile.</span>
+                </div><input id="enter-send" type="checkbox" checked>
+            </div>
+            <div class="setting-row">
+                <div><strong>Lokale Benachrichtigungen</strong><span>Nur UI-Einstellungen in diesem Browser.</span>
+                </div><input id="notify" type="checkbox">
+            </div>
+            <div class="setting-row">
+                <div><strong>Animationsniveau</strong><span>Reduzierte Bewegungen berücksichtigen.</span></div><select
+                    id="motion">
+                    <option value="full">Normal</option>
+                    <option value="reduced">Reduziert</option>
+                </select>
+            </div>
+        </div>
+        <div class="settings-card">
+            <div class="section-title">
+                <div>
+                    <h2>Sicherheit</h2>
+                    <p>Firebase Authentication verwaltet deine Sitzung und dein Passwort.</p>
+                </div>
+            </div>
+            <div class="info-banner">Dein sichtbarer Benutzername ist die einzige Identität, die andere Nutzer
+                benötigen.</div>
+        </div>
+    </main>
+    <script type="module" src="./settings.js"></script>
+</body>
+
+</html>

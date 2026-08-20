@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="de">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Nebula – Profil</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" type="image/png" href="icon.png">
+</head>
+
+<body>
+  <header class="topbar"><button class="mobile-menu-toggle" id="mobile-menu-toggle" aria-label="Menü öffnen" aria-expanded="false"><span></span></button><a class="logo" href="index.html"><span class="logo-mark">N</span>Nebula</a>
+    <nav class="nav-links"><a data-nav="index.html"
+        href="index.html">Chats</a><a data-nav="friends.html" href="friends.html">Freunde</a><a data-nav="search.html"
+        href="search.html">Entdecken</a><a data-nav="settings.html" href="settings.html">Einstellungen</a></nav>
+    <div class="top-actions"><a class="avatar-mini" href="profile.html" data-me-initials></a><button id="logout"
+        class="icon-btn">↪</button></div>
+  </header>
+  <main class="page narrow">
+    <div class="profile-cover">
+      <div id="profile-avatar" class="avatar xl" data-me-initials></div>
+      <div><span class="eyebrow" id="profile-eyebrow">MEIN PROFIL</span>
+        <h1 id="profile-name" data-me-name>–</h1>
+        <p class="muted" id="profile-created">–</p>
+      </div>
+    </div>
+    <div id="view-card" class="settings-card hidden">
+      <div class="section-title">
+        <div>
+          <h2>Über diesen Nutzer</h2>
+          <p id="view-bio">Noch keine Bio.</p>
+        </div>
+      </div>
+      <div class="form-actions"><a id="view-chat" class="primary" href="#">Chat öffnen</a><a class="secondary"
+          href="friends.html">Zu Freunden</a></div>
+    </div>
+    <form id="profile-form" class="settings-card">
+      <div class="section-title">
+        <div>
+          <h2>Profil bearbeiten</h2>
+          <p>Diese Angaben sehen andere Nutzer im Messenger.</p>
+        </div>
+      </div><label>Benutzername</label><input id="username" disabled><small>Der Benutzername kann nach der Registrierung
+        nicht geändert werden.</small><label>Bio</label><textarea id="bio" maxlength="160" rows="4"
+        placeholder="Erzähl kurz etwas über dich …"></textarea>
+      <div class="form-actions"><button class="primary">Änderungen speichern</button></div>
+    </form>
+    <div id="account-card" class="settings-card">
+      <div class="section-title">
+        <div>
+          <h2>Konto</h2>
+          <p>Grundlegende Kontoaktionen.</p>
+        </div>
+      </div>
+      <div class="danger-box">
+        <div><strong>Konto abmelden</strong><span>Auf diesem Gerät die Sitzung beenden.</span></div><button
+          type="button" id="logout2" class="ghost">Abmelden</button>
+      </div>
+    </div>
+  </main>
+  <script type="module" src="./profile.js"></script>
+</body>
+
+</html>
